@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
  */
 public final class NacosConfigUtil {
 
-    public static final String GROUP_ID = "sentinel_dashboard";
+    public static final String GROUP_ID = "sentinel";
     
     public static final String FLOW_DATA_ID_POSTFIX = "";
     public static final String PARAM_FLOW_DATA_ID_POSTFIX = "-param-rules";

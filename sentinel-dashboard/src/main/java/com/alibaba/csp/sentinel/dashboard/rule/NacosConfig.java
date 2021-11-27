@@ -19,8 +19,10 @@ import java.util.List;
 import java.util.Properties;
 
 import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.FlowRuleEntity;
+import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.SentinelRuleTemplate;
 import com.alibaba.csp.sentinel.datasource.Converter;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.config.ConfigFactory;
 import com.alibaba.nacos.api.config.ConfigService;
@@ -39,12 +41,27 @@ public class NacosConfig {
 
     @Bean
     public Converter<List<FlowRuleEntity>, String> flowRuleEntityEncoder() {
-        return JSON::toJSONString;
+        return NacosConfig::encoder;
     }
 
+    public static String encoder(List<FlowRuleEntity> flowRuleEntities) {
+        System.out.println("=================>encoder");
+        SentinelRuleTemplate sentinelRuleTemplate = new SentinelRuleTemplate();
+        sentinelRuleTemplate.setEnable(true);
+        sentinelRuleTemplate.setGmtModified(System.currentTimeMillis());
+        sentinelRuleTemplate.setFlowRules(flowRuleEntities);
+        return JSON.toJSONString(sentinelRuleTemplate);
+    }
     @Bean
     public Converter<String, List<FlowRuleEntity>> flowRuleEntityDecoder() {
-        return s -> JSON.parseArray(s, FlowRuleEntity.class);
+
+        return s->NacosConfig.decoder(s);
+        //return s -> JSON.parseArray(s, FlowRuleEntity.class);
+    }
+    public static List<FlowRuleEntity> decoder(String s){
+        System.out.println("=================>decoder");
+        SentinelRuleTemplate sentinelRuleTemplate = JSON.parseObject(s, new TypeReference<SentinelRuleTemplate>() {});
+        return sentinelRuleTemplate.getFlowRules();
     }
 
     @Bean
